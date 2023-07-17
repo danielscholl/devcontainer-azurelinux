@@ -1,0 +1,15 @@
+version: v1.1.0
+
+steps:
+- build: -t {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-amd64 -f dockerfile.arm64 . 
+- build: -t {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-arm64 -f dockerfile.amd64 . 
+- push: 
+    - {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-arm64
+    - {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-amd64
+- cmd: >
+    docker manifest create
+    {{.Run.Registry}}/devcontainer-azurelinux:latest
+    {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-arm64
+    {{.Run.Registry}}/devcontainer-azurelinux:{{.Run.ID}}-amd64
+- cmd: docker manifest push --purge {{.Run.Registry}}/devcontainer-azurelinux:latest
+- cmd: docker manifest inspect {{.Run.Registry}}/devcontainer-azurelinux:latest
